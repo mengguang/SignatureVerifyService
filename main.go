@@ -3,29 +3,29 @@ package main
 //go:generate zenrpc
 
 import (
-	"github.com/semrush/zenrpc"
-	"os"
-	"log"
-	"net/http"
 	"crypto/ecdsa"
-	"math/big"
 	"crypto/elliptic"
 	"encoding/hex"
 	"errors"
-	"sort"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/semrush/zenrpc"
+	"log"
+	"math/big"
+	"net/http"
+	"os"
+	"sort"
 )
 
 type Config struct {
 	ValidPublicKeys []string
-	ListenAddress string
+	ListenAddress   string
 }
 
 var config Config
 
 func IsValidPublicKey(hexPublicKey string) bool {
-	i := sort.SearchStrings(config.ValidPublicKeys,hexPublicKey)
+	i := sort.SearchStrings(config.ValidPublicKeys, hexPublicKey)
 	if i < len(config.ValidPublicKeys) && config.ValidPublicKeys[i] == hexPublicKey {
 		return true
 	} else {
@@ -34,7 +34,7 @@ func IsValidPublicKey(hexPublicKey string) bool {
 }
 
 func InitConfig() bool {
-	_, err := toml.DecodeFile("./config.toml",&config)
+	_, err := toml.DecodeFile("./config.toml", &config)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -80,7 +80,7 @@ type SignatureVerifyService struct{ zenrpc.Service }
 func (s SignatureVerifyService) SignatureVerify(hexData string, hexSignature string, hexPublicKey string) (bool, error) {
 
 	if IsValidPublicKey(hexPublicKey) == false {
-		return false,nil
+		return false, nil
 	}
 
 	publicKey, err := UnmarshalPubkey(hexPublicKey)
