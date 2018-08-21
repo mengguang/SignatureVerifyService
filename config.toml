@@ -1,4 +1,4 @@
-ListenAddress = "0.0.0.0:9999"
+ListenAddress = "127.0.0.1:9999"
 
 ValidPublicKeys = [
     "04bc59533025bafae89863f729d907b2d301642a471e7a1bb7b578f6bf2ccd21c2201e51f263e3656254bcc497bab50156600be7c33830e407df2910eff878a331",

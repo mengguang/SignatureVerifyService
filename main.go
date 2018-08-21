@@ -5,6 +5,7 @@ package main
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -81,6 +82,33 @@ func (s SignatureVerifyService) IsValidPublicKey(hexPublicKey string) bool {
 	}
 }
 
+func (s SignatureVerifyService) SignatureVerifySha256(data string, hexSignature string, hexPublicKey string) (bool, error) {
+
+	if s.IsValidPublicKey(hexPublicKey) == false {
+		return false, nil
+	}
+
+	publicKey, err := UnmarshalPubkey(hexPublicKey)
+	if err != nil {
+		return false, err
+	}
+
+	hash := sha256.Sum256([]byte(data))
+
+	signature, err := hex.DecodeString(hexSignature)
+	if err != nil {
+		return false, err
+	}
+
+	if len(signature) > 64 {
+		signature = signature[:64]
+	}
+
+	result := Verify(hash[:], signature, publicKey)
+
+	return result, nil
+}
+
 func (s SignatureVerifyService) SignatureVerify(hexData string, hexSignature string, hexPublicKey string) (bool, error) {
 
 	if s.IsValidPublicKey(hexPublicKey) == false {
@@ -130,7 +158,7 @@ func main() {
 	rpc.Register("", SignatureVerifyService{})
 	rpc.Use(zenrpc.Logger(log.New(os.Stderr, "", log.LstdFlags)))
 
-	http.Handle("/", rpc)
+	http.Handle("/signature_verify_service", rpc)
 
 	log.Printf("starting arithsrv on %s", config.ListenAddress)
 	log.Fatal(http.ListenAndServe(config.ListenAddress, nil))
